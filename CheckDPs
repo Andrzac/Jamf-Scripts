@@ -8,7 +8,7 @@
 # 4/17/23
 ####
 
-admin_email="zandreae@associates.nsf.gov"
+admin_email="INSERT EMAIL HERE"
 hosts=("p-jssdp-w-01.ad.nsf.gov" "p-jssdp-w-02.ad.nsf.gov")
 unreachable_hosts=()
 
