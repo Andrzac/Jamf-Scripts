@@ -1,0 +1,33 @@
+#!/bin/bash
+
+####
+#This script is used to check the connectivity for the two distrubition points (01 is internal and 02 is in the dmz)
+#If they are unable the Mac Admin will be notified 
+#***Note*** Mail Server needs to be configured in order for this to work
+# By Zach Andreae
+# 4/17/23
+####
+
+admin_email="zandreae@associates.nsf.gov"
+hosts=("p-jssdp-w-01.ad.nsf.gov" "p-jssdp-w-02.ad.nsf.gov")
+unreachable_hosts=()
+
+for host in "${hosts[@]}"; do
+  echo "Checking connectivity for $host ..."
+  if ping -c 3 "$host" &> /dev/null; then
+    echo "Success: $host is reachable."
+  else
+    echo "Error: $host is unreachable."
+    unreachable_hosts+=("$host")
+  fi
+  echo
+done
+
+if [ ${#unreachable_hosts[@]} -gt 0 ]; then
+  message="The following hosts are unreachable:\n\n"
+  for host in "${unreachable_hosts[@]}"; do
+    message+=" - $host\n"
+  done
+  echo -e "$message" | mail -s "Network Connectivity Issue" "$admin_email"
+  echo "Notification email sent to $admin_email"
+fi
