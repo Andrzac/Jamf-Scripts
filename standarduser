@@ -1,0 +1,32 @@
+#!/bin/bash
+
+####Written by Zach Andreae####
+#This script will create a standard user
+
+# Check if the script is being run as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root (with sudo)."
+    exit 1
+fi
+
+# Set variables for the new user
+NEW_USERNAME="newuser"
+NEW_FULLNAME="New User"
+NEW_PASSWORD="password123"
+
+# Create the user account
+dscl . -create "/Users/$NEW_USERNAME"
+dscl . -create "/Users/$NEW_USERNAME" UserShell /bin/bash
+dscl . -create "/Users/$NEW_USERNAME" RealName "$NEW_FULLNAME"
+dscl . -create "/Users/$NEW_USERNAME" UniqueID "501"  # You need to ensure a unique UID
+dscl . -create "/Users/$NEW_USERNAME" PrimaryGroupID "20"  # 20 is the standard "staff" group
+dscl . -create "/Users/$NEW_USERNAME" NFSHomeDirectory "/Users/$NEW_USERNAME"
+dscl . -passwd "/Users/$NEW_USERNAME" "$NEW_PASSWORD"
+
+# Create the user's home directory
+createhomedir -c -u "$NEW_USERNAME"
+
+# Add the user to the "admin" group if needed
+# dseditgroup -o edit -a "$NEW_USERNAME" -t user admin
+
+echo "User $NEW_USERNAME created successfully."
