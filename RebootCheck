@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Created by Ryan Sheldon 07/05/2022
+# 
+# Checks if computer has been active for $REBOOTDAYS or longer. Triggers reboot
+# trigger if applicable. Otherwise reports no reboot applicable.
+#
+# Adapted from link below
+# https://community.jamf.com/t5/jamf-pro/computing-uptime-and-using-it/td-p/24793
+
+# Program variables
+AWK='/usr/bin/awk'
+SED='/usr/bin/sed'
+JAMF='/usr/local/bin/jamf'
+
+# Static variables
+REBOOTDAYS=$4
+NOREBOOTMESSAGE="Computer has been active for less than $REBOOTDAYS days. No reboot required."
+
+# Get current uptime and set to variable so we only make one call
+CURRENTUPTIME=$(/usr/bin/uptime)
+
+# Parse uptime output
+DAYS=$(echo $CURRENTUPTIME | $AWK '{ print $4 }' | $SED 's/,//g')
+
+# Check to see if reboot applies
+if [ "$DAYS" = "days" ]; then
+    # Parse uptime for number of days online
+    NUM=$(echo $CURRENTUPTIME | $AWK '{ print $3 }')
+    
+    # Check if we are active more than $REBOOTDAYS
+    if [ $NUM -ge $REBOOTDAYS ]; then
+        # We have been active for $REBOOTDAYS or greater. Report status.
+        echo "Computer has been active for $NUM days. Enforcing reboot."
+        $JAMF policy -event nsfEnforceReboot
+    else
+        # We have not been active $REBOOTDAYS, send "no action" message.
+        echo $NOREBOOTMESSAGE
+    fi
+else
+    # We have not been active $REBOOTDAYS, send "no action" message.
+    echo $NOREBOOTMESSAGE
+fi
