@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Created by Ryan Sheldon 07/05/2022
+# Created by Zach Andreae 07/05/2023
 # 
 # Checks if computer has been active for $REBOOTDAYS or longer. Triggers reboot
 # trigger if applicable. Otherwise reports no reboot applicable.
